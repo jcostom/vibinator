@@ -55,7 +55,7 @@ def main():
                 if ZERO_READ > MAX_ZERO_READINGS:
                     IS_RUNNING = 0
                     print("Transition to Stopped.")
-                    # webhook
+                    triggerWebHook()
                 else:
                     print("Tracking Zero Readings: {} out of {}".format(ZERO_READ, MAX_ZERO_READINGS))
             else:
