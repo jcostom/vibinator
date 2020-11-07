@@ -46,21 +46,21 @@ def main():
         if IS_RUNNING == 0:
             if avg > 0:
                 IS_RUNNING = 1
-                print("Transition to Running: {}".format(avg))
+                writeLogEntry('Transition to running', avg)
             else:
-                print("Remains stopped: {}".format(avg))
+                writeLogEntry('Remains stopped', avg)
         else:
             if avg == 0:
                 ZERO_READ += 1
                 if ZERO_READ > MAX_ZERO_READINGS:
                     IS_RUNNING = 0
-                    print("Transition to Stopped.")
+                    writeLogEntry('Transition to stopped', '')
                     triggerWebHook()
                 else:
-                    print("Tracking Zero Readings: {} out of {}".format(ZERO_READ, MAX_ZERO_READINGS))
+                    writeLogEntry('Tracking Zero Readings', ZERO_READ)
             else:
                 ZERO_READ = 0
-                print("Remains running: {}".format(avg))
+                writeLogEntry('Remains running', avg)
         time.sleep(INTERVAL)
 
 
