@@ -9,10 +9,10 @@ IFTTTWEBHOOK = 'your-ifttt-webhook-name'
 INTERVAL = 15
 SENSOR_PIN = 14
 READINGS = 1000000
-MAX_ZERO_READINGS = 20
+RAMP_READINGS = 20
 
 
-VER = "0.1"
+VER = "0.2"
 USER_AGENT = "vibinator.py/" + VER
 
 def triggerWebHook():
@@ -36,7 +36,8 @@ def main():
     GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     IS_RUNNING = 0
-    ZERO_READ = 0
+    RAMP_UP = 0
+    RAMP_DOWN = 0
 
     while True:
         agg = 0
@@ -45,21 +46,26 @@ def main():
         avg = agg / READINGS
         if IS_RUNNING == 0:
             if avg > 0:
-                IS_RUNNING = 1
-                writeLogEntry('Transition to running', avg)
+                RAMP_UP += 1
+                if RAMP_UP > RAMP_READINGS:
+                    IS_RUNNING = 1
+                    writeLogEntry('Transition to running', avg)
+                else:
+                    writeLogEntry('Tracking Non-Zero Readings', RAMP_UP)
             else:
+                RAMP_UP = 0
                 writeLogEntry('Remains stopped', avg)
         else:
             if avg == 0:
-                ZERO_READ += 1
-                if ZERO_READ > MAX_ZERO_READINGS:
+                RAMP_DOWN += 1
+                if RAMP_DOWN > RAMP_READINGS:
                     IS_RUNNING = 0
                     writeLogEntry('Transition to stopped', '')
                     triggerWebHook()
                 else:
-                    writeLogEntry('Tracking Zero Readings', ZERO_READ)
+                    writeLogEntry('Tracking Zero Readings', RAMP_DOWN)
             else:
-                ZERO_READ = 0
+                RAMP_DOWN = 0
                 writeLogEntry('Remains running', avg)
         time.sleep(INTERVAL)
 
