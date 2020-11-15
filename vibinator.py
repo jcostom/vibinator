@@ -31,7 +31,7 @@ def writeLogEntry(message, status):
     print(time.strftime("[%d %b %Y %H:%M:%S %Z]", time.localtime()) + " {}: {}".format(message, status))
 
 def main():
-    writeLogEntry('Initiated', '')
+    writeLogEntry('Initiated', USER_AGENT)
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
