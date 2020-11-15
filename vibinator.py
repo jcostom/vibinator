@@ -9,10 +9,11 @@ IFTTTWEBHOOK = 'your-ifttt-webhook-name'
 INTERVAL = 15
 SENSOR_PIN = 14
 READINGS = 1000000
-RAMP_READINGS = 20
+RAMP_UP_READINGS = 5
+RAMP_DOWN_READINGS = 20
 
 
-VER = "0.2"
+VER = "0.3"
 USER_AGENT = "vibinator.py/" + VER
 
 def triggerWebHook():
@@ -47,7 +48,7 @@ def main():
         if IS_RUNNING == 0:
             if avg > 0:
                 RAMP_UP += 1
-                if RAMP_UP > RAMP_READINGS:
+                if RAMP_UP > RAMP_UP_READINGS:
                     IS_RUNNING = 1
                     writeLogEntry('Transition to running', avg)
                 else:
@@ -58,7 +59,7 @@ def main():
         else:
             if avg == 0:
                 RAMP_DOWN += 1
-                if RAMP_DOWN > RAMP_READINGS:
+                if RAMP_DOWN > RAMP_DOWN_READINGS:
                     IS_RUNNING = 0
                     writeLogEntry('Transition to stopped', '')
                     triggerWebHook()
