@@ -11,6 +11,7 @@ SENSOR_PIN = 14
 READINGS = 1000000
 RAMP_UP_READINGS = 5
 RAMP_DOWN_READINGS = 20
+AVG_THRESHOLD = 0.3
 
 
 VER = "0.3"
@@ -46,7 +47,7 @@ def main():
             agg += GPIO.input(SENSOR_PIN)
         avg = agg / READINGS
         if IS_RUNNING == 0:
-            if avg > 0:
+            if avg >= AVG_THRESHOLD:
                 RAMP_UP += 1
                 if RAMP_UP > RAMP_UP_READINGS:
                     IS_RUNNING = 1
@@ -57,7 +58,7 @@ def main():
                 RAMP_UP = 0
                 writeLogEntry('Remains stopped', avg)
         else:
-            if avg == 0:
+            if avg < AVG_THRESHOLD:
                 RAMP_DOWN += 1
                 if RAMP_DOWN > RAMP_DOWN_READINGS:
                     IS_RUNNING = 0
