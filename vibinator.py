@@ -6,7 +6,7 @@ import requests
 
 IFTTTKEY = 'your-ifttt-webhook-key'
 IFTTTWEBHOOK = 'your-ifttt-webhook-name'
-INTERVAL = 15
+INTERVAL = 300
 SENSOR_PIN = 14
 READINGS = 1000000
 RAMP_UP_READINGS = 5
