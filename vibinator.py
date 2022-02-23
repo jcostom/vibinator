@@ -13,7 +13,7 @@ RAMP_UP_READINGS = 5
 RAMP_DOWN_READINGS = 20
 AVG_THRESHOLD = 0.3
 
-VER = "0.3"
+VER = "0.5"
 USER_AGENT = "vibinator.py/" + VER
 
 
