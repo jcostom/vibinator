@@ -13,23 +13,26 @@ RAMP_UP_READINGS = 5
 RAMP_DOWN_READINGS = 20
 AVG_THRESHOLD = 0.3
 
-
 VER = "0.3"
 USER_AGENT = "vibinator.py/" + VER
+
 
 def triggerWebHook():
     webHookURL = "/".join(
         ("https://maker.ifttt.com/trigger",
-        IFTTTWEBHOOK,
-        "with/key",
-        IFTTTKEY)
+         IFTTTWEBHOOK,
+         "with/key",
+         IFTTTKEY)
     )
-    headers = {'User-Agent': USER_AGENT }
+    headers = {'User-Agent': USER_AGENT}
     r = requests.get(webHookURL, headers=headers)
     writeLogEntry("IFTTT Response", r.text)
 
+
 def writeLogEntry(message, status):
-    print(time.strftime("[%d %b %Y %H:%M:%S %Z]", time.localtime()) + " {}: {}".format(message, status))
+    print(time.strftime("[%d %b %Y %H:%M:%S %Z]",
+          time.localtime()) + " {}: {}".format(message, status))
+
 
 def main():
     writeLogEntry('Initiated', USER_AGENT)
