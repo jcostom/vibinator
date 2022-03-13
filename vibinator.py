@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
 
-import RPi.GPIO as GPIO
+import os
 import time
 import requests
+import RPi.GPIO
 
-IFTTTKEY = 'your-ifttt-webhook-key'
-IFTTTWEBHOOK = 'your-ifttt-webhook-name'
-INTERVAL = 300
-SENSOR_PIN = 14
-READINGS = 1000000
-RAMP_UP_READINGS = 5
-RAMP_DOWN_READINGS = 20
-AVG_THRESHOLD = 0.3
+IFTTTKEY = os.getenv('IFTTTKEY')
+IFTTTWEBHOOK = os.getenv('IFTTTWEBHOOK')
+TZ = os.getenv('TZ', 'America/New_York')
+INTERVAL = int(os.getenv('INTERVAL', 300))
+SENSOR_PIN = int(os.getenv('SENSOR_PIN', 14))
+READINGS = int(os.getenv('READINGS', 1000000))
+RAMP_UP_READINGS = int(os.getenv('RAMP_UP_READINGS', 5))
+RAMP_DOWN_READINGS = int(os.getenv('RAMP_DOWN_READINGS', 20))
+AVG_THRESHOLD = os.getenv('AVG_THRESHOLD', 0.3)
 
-VER = "0.5"
+VER = "0.8"
 USER_AGENT = "vibinator.py/" + VER
 
 
@@ -36,16 +38,16 @@ def writeLogEntry(message, status):
 
 def main():
     writeLogEntry('Initiated', USER_AGENT)
-    GPIO.setwarnings(False)
-    GPIO.setmode(GPIO.BCM)
-    GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    RPi.GPIO.setwarnings(False)
+    RPi.GPIO.setmode(RPi.GPIO.BCM)
+    RPi.GPIO.setup(SENSOR_PIN, RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_DOWN)
     IS_RUNNING = 0
     RAMP_UP = 0
     RAMP_DOWN = 0
     while True:
         agg = 0
         for i in range(READINGS):
-            agg += GPIO.input(SENSOR_PIN)
+            agg += RPi.GPIO.input(SENSOR_PIN)
         avg = agg / READINGS
         if IS_RUNNING == 0:
             if avg >= AVG_THRESHOLD:

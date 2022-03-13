@@ -1,0 +1,19 @@
+---
+version: '3'
+
+services:
+  vibinator:
+    image: jcostom/vibinator:0.8
+    container_name: vibinator
+    devices:
+      - /dev/gpiomem:/dev/gpiomem
+    environment:
+      - IFTTTKEY=your-hook-value
+      - IFTTTWEBHOOK=your-hook-name
+    restart: unless-stopped
+    networks:
+      - containers
+
+networks:
+  containers:
+    external: true
