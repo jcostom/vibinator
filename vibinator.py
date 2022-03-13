@@ -39,11 +39,9 @@ def main():
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(SENSOR_PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
     IS_RUNNING = 0
     RAMP_UP = 0
     RAMP_DOWN = 0
-
     while True:
         agg = 0
         for i in range(READINGS):
