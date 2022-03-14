@@ -45,10 +45,10 @@ def sensorInit(pin):
     RPi.GPIO.setup(pin, RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_DOWN)
 
 
-def takeReading(numReadings):
+def takeReading(numReadings, pin):
     totalReadings = 0
-    for reading in range(numReadings):
-        totalReadings += reading
+    for i in range(numReadings):
+        totalReadings += RPi.GPIO.input(pin)
     return(totalReadings / numReadings)
 
 
@@ -62,7 +62,7 @@ def main():
         # intervals are 120s, do 4 slices
         sliceSum = 0
         for i in range(SLICES):
-            result = takeReading(READINGS)
+            result = takeReading(READINGS, SENSOR_PIN)
             writeLogEntry('Slice result was', result)
             sliceSum += result
             time.sleep(INTERVAL/SLICES)
