@@ -62,9 +62,12 @@ def main():
         # intervals are 120s, do 4 slices
         sliceSum = 0
         for i in range(SLICES):
-            sliceSum += takeReading(READINGS)
+            result = takeReading(READINGS)
+            writeLogEntry('Slice result was', result)
+            sliceSum += result
             time.sleep(INTERVAL/SLICES)
         sliceAvg = sliceSum / SLICES
+        writeLogEntry('sliceAvg was', sliceAvg)
         if IS_RUNNING == 0:
             if sliceAvg >= AVG_THRESHOLD:
                 RAMP_UP += 1
@@ -88,7 +91,6 @@ def main():
             else:
                 RAMP_DOWN = 0
                 writeLogEntry('Remains running', sliceAvg)
-        time.sleep(INTERVAL)
 
 
 if __name__ == "__main__":
