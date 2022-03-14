@@ -11,7 +11,7 @@ IFTTTWEBHOOK = os.getenv('IFTTTWEBHOOK')
 TZ = os.getenv('TZ', 'America/New_York')
 INTERVAL = int(os.getenv('INTERVAL', 120))
 SENSOR_PIN = int(os.getenv('SENSOR_PIN', 14))
-AVG_THRESHOLD = os.getenv('AVG_THRESHOLD', 0.2)
+AVG_THRESHOLD = float(os.getenv('AVG_THRESHOLD', 0.2))
 
 # Static
 READINGS = 1000000
