@@ -12,14 +12,16 @@ TZ = os.getenv('TZ', 'America/New_York')
 INTERVAL = int(os.getenv('INTERVAL', 120))
 SENSOR_PIN = int(os.getenv('SENSOR_PIN', 14))
 AVG_THRESHOLD = float(os.getenv('AVG_THRESHOLD', 0.2))
-LOGALL = os.getenv('LOGALL', False)
+LOGALL_ENV = os.getenv('LOGALL', False)
+if LOGALL_ENV == "False":
+    LOGALL = False
 
 # Static
 READINGS = 1000000
 SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
-VER = "1.1"
+VER = "1.2"
 USER_AGENT = "vibinator.py/" + VER
 
 
