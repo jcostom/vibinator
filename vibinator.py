@@ -12,13 +12,14 @@ TZ = os.getenv('TZ', 'America/New_York')
 INTERVAL = int(os.getenv('INTERVAL', 120))
 SENSOR_PIN = int(os.getenv('SENSOR_PIN', 14))
 AVG_THRESHOLD = float(os.getenv('AVG_THRESHOLD', 0.2))
+LOGALL = os.getenv('LOGALL', False)
 
 # Static
 READINGS = 1000000
 SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
-VER = "1.0"
+VER = "1.1"
 USER_AGENT = "vibinator.py/" + VER
 
 
@@ -63,11 +64,13 @@ def main():
         sliceSum = 0
         for i in range(SLICES):
             result = takeReading(READINGS, SENSOR_PIN)
-            # writeLogEntry('Slice result was', result)
+            if (LOGALL):
+                writeLogEntry('Slice result was', result)
             sliceSum += result
             time.sleep(INTERVAL/SLICES)
         sliceAvg = sliceSum / SLICES
-        writeLogEntry('sliceAvg was', sliceAvg)
+        if (LOGALL):
+            writeLogEntry('sliceAvg was', sliceAvg)
         if IS_RUNNING == 0:
             if sliceAvg >= AVG_THRESHOLD:
                 RAMP_UP += 1

@@ -16,6 +16,7 @@ Check out the example docker-compose file for how you should be launching this t
 * INTERVAL: your polling interval, default is 120s (internally, this is carved into 4 slices)
 * SENSOR_PIN: which GPIO pin you're using for the sensor, default is pin 14
 * AVG_THRESHOLD: above this value, you declare the dryer as being "on", used to prevent false positives if you're in a "noisy" environment. Default is 0.2
+* LOGALL: logs more data during monitoring - useful for debugging monitor intervals and threshold levels, default is False. Set to True if you want more logs. Don't leave this on forever if you use a Pi with a flash card, as flash cards have a finite number of write ops.
 
 Only IFTTTKEY and IFTTTWEBHOOK are required, the rest have sane defaults.
 
