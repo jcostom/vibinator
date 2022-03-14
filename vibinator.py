@@ -16,9 +16,9 @@ AVG_THRESHOLD = float(os.getenv('AVG_THRESHOLD', 0.2))
 # Static
 READINGS = 1000000
 SLICES = 4
-RAMP_UP_READINGS = 5
-RAMP_DOWN_READINGS = 5
-VER = "0.9"
+RAMP_UP_READINGS = 4
+RAMP_DOWN_READINGS = 4
+VER = "1.0"
 USER_AGENT = "vibinator.py/" + VER
 
 
@@ -63,7 +63,7 @@ def main():
         sliceSum = 0
         for i in range(SLICES):
             result = takeReading(READINGS, SENSOR_PIN)
-            writeLogEntry('Slice result was', result)
+            # writeLogEntry('Slice result was', result)
             sliceSum += result
             time.sleep(INTERVAL/SLICES)
         sliceAvg = sliceSum / SLICES
