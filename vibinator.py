@@ -5,17 +5,20 @@ import time
 import requests
 import RPi.GPIO
 
+# Configurable
 IFTTTKEY = os.getenv('IFTTTKEY')
 IFTTTWEBHOOK = os.getenv('IFTTTWEBHOOK')
 TZ = os.getenv('TZ', 'America/New_York')
-INTERVAL = int(os.getenv('INTERVAL', 300))
+INTERVAL = int(os.getenv('INTERVAL', 120))
 SENSOR_PIN = int(os.getenv('SENSOR_PIN', 14))
-READINGS = int(os.getenv('READINGS', 1000000))
-RAMP_UP_READINGS = int(os.getenv('RAMP_UP_READINGS', 5))
-RAMP_DOWN_READINGS = int(os.getenv('RAMP_DOWN_READINGS', 20))
-AVG_THRESHOLD = os.getenv('AVG_THRESHOLD', 0.3)
+AVG_THRESHOLD = os.getenv('AVG_THRESHOLD', 0.2)
 
-VER = "0.8"
+# Static
+READINGS = 1000000
+SLICES = 4
+RAMP_UP_READINGS = 5
+RAMP_DOWN_READINGS = 5
+VER = "0.9"
 USER_AGENT = "vibinator.py/" + VER
 
 
@@ -36,32 +39,45 @@ def writeLogEntry(message, status):
           time.localtime()) + " {}: {}".format(message, status))
 
 
-def main():
-    writeLogEntry('Initiated', USER_AGENT)
+def sensorInit(pin):
     RPi.GPIO.setwarnings(False)
     RPi.GPIO.setmode(RPi.GPIO.BCM)
-    RPi.GPIO.setup(SENSOR_PIN, RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_DOWN)
+    RPi.GPIO.setup(pin, RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_DOWN)
+
+
+def takeReading(numReadings):
+    totalReadings = 0
+    for reading in range(numReadings):
+        totalReadings += reading
+    return(totalReadings / numReadings)
+
+
+def main():
+    sensorInit(SENSOR_PIN)
+    writeLogEntry('Initiated', USER_AGENT)
     IS_RUNNING = 0
     RAMP_UP = 0
     RAMP_DOWN = 0
     while True:
-        agg = 0
-        for i in range(READINGS):
-            agg += RPi.GPIO.input(SENSOR_PIN)
-        avg = agg / READINGS
+        # intervals are 120s, do 4 slices
+        sliceSum = 0
+        for i in range(SLICES):
+            sliceSum += takeReading(READINGS)
+            time.sleep(INTERVAL/SLICES)
+        sliceAvg = sliceSum / SLICES
         if IS_RUNNING == 0:
-            if avg >= AVG_THRESHOLD:
+            if sliceAvg >= AVG_THRESHOLD:
                 RAMP_UP += 1
                 if RAMP_UP > RAMP_UP_READINGS:
                     IS_RUNNING = 1
-                    writeLogEntry('Transition to running', avg)
+                    writeLogEntry('Transition to running', sliceAvg)
                 else:
                     writeLogEntry('Tracking Non-Zero Readings', RAMP_UP)
             else:
                 RAMP_UP = 0
-                writeLogEntry('Remains stopped', avg)
+                writeLogEntry('Remains stopped', sliceAvg)
         else:
-            if avg < AVG_THRESHOLD:
+            if sliceAvg < AVG_THRESHOLD:
                 RAMP_DOWN += 1
                 if RAMP_DOWN > RAMP_DOWN_READINGS:
                     IS_RUNNING = 0
@@ -71,7 +87,7 @@ def main():
                     writeLogEntry('Tracking Zero Readings', RAMP_DOWN)
             else:
                 RAMP_DOWN = 0
-                writeLogEntry('Remains running', avg)
+                writeLogEntry('Remains running', sliceAvg)
         time.sleep(INTERVAL)
 
 
