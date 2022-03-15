@@ -1,10 +1,14 @@
+FROM python:slim as builder
+
+ENV TZ=America/New_York
+RUN apt update && apt -yq install gcc make
+RUN pip install requests && pip install RPi.GPIO
+
 FROM python:slim
 
 ENV TZ=America/New_York
 
-RUN apt update && apt -yq install gcc make
-
-RUN pip install requests && pip install RPi.GPIO
+COPY --from=builder /usr/local/lib/python3.10/site-packages/ /usr/local/lib/python3.10/site-packages/
 
 RUN mkdir /app
 

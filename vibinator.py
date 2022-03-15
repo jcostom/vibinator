@@ -15,13 +15,15 @@ AVG_THRESHOLD = float(os.getenv('AVG_THRESHOLD', 0.2))
 LOGALL_ENV = os.getenv('LOGALL', False)
 if LOGALL_ENV == "False":
     LOGALL = False
+else:
+    LOGALL = True
 
 # Static
 READINGS = 1000000
 SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
-VER = "1.2"
+VER = "1.3"
 USER_AGENT = "vibinator.py/" + VER
 
 

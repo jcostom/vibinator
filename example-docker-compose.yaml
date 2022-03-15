@@ -3,7 +3,7 @@ version: '3'
 
 services:
   vibinator:
-    image: jcostom/vibinator:1.0
+    image: jcostom/vibinator:1.3
     container_name: vibinator
     devices:
       - /dev/gpiomem:/dev/gpiomem
