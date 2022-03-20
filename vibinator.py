@@ -2,12 +2,12 @@
 
 import os
 import time
-import requests
+import telegram
 import RPi.GPIO
 
 # Configurable
-IFTTTKEY = os.getenv('IFTTTKEY')
-IFTTTWEBHOOK = os.getenv('IFTTTWEBHOOK')
+CHATID = int(os.getenv('CHATID'))
+MYTOKEN = os.getenv('MYTOKEN')
 TZ = os.getenv('TZ', 'America/New_York')
 INTERVAL = int(os.getenv('INTERVAL', 120))
 SENSOR_PIN = int(os.getenv('SENSOR_PIN', 14))
@@ -23,20 +23,14 @@ READINGS = 1000000
 SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
-VER = "1.3"
+VER = "1.5"
 USER_AGENT = "vibinator.py/" + VER
 
 
-def triggerWebHook():
-    webHookURL = "/".join(
-        ("https://maker.ifttt.com/trigger",
-         IFTTTWEBHOOK,
-         "with/key",
-         IFTTTKEY)
-    )
-    headers = {'User-Agent': USER_AGENT}
-    r = requests.get(webHookURL, headers=headers)
-    writeLogEntry("IFTTT Response", r.text)
+def sendNotification(msg, chat_id, token):
+    bot = telegram.Bot(token=token)
+    bot.sendMessage(chat_id=chat_id, text=msg)
+    writeLogEntry("Telegram Group Message Sent", "")
 
 
 def writeLogEntry(message, status):
@@ -92,7 +86,8 @@ def main():
                 if RAMP_DOWN > RAMP_DOWN_READINGS:
                     IS_RUNNING = 0
                     writeLogEntry('Transition to stopped', '')
-                    triggerWebHook()
+                    notificationText = "Dryer finished on " + time.strftime("%B %d, %Y at %H:%M") + ". Go switch out the laundry!"  # noqa: E501
+                    sendNotification(notificationText, CHATID, MYTOKEN)
                 else:
                     writeLogEntry('Tracking Zero Readings', RAMP_DOWN)
             else:

@@ -2,7 +2,7 @@ FROM python:slim as builder
 
 ENV TZ=America/New_York
 RUN apt update && apt -yq install gcc make
-RUN pip install requests && pip install RPi.GPIO
+RUN pip install python-telegram-bot && pip install RPi.GPIO
 
 FROM python:slim
 
