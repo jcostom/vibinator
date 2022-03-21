@@ -23,7 +23,7 @@ READINGS = 1000000
 SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
-VER = "1.5"
+VER = "1.5.1"
 USER_AGENT = "vibinator.py/" + VER
 
 
@@ -86,7 +86,11 @@ def main():
                 if RAMP_DOWN > RAMP_DOWN_READINGS:
                     IS_RUNNING = 0
                     writeLogEntry('Transition to stopped', '')
-                    notificationText = "Dryer finished on " + time.strftime("%B %d, %Y at %H:%M") + ". Go switch out the laundry!"  # noqa: E501
+                    notificationText = "".join(
+                        ("Dryer finished on ",
+                         time.strftime("%B %d, %Y at %H:%M"),
+                         ". Go switch out the laundry!")
+                    )
                     sendNotification(notificationText, CHATID, MYTOKEN)
                 else:
                     writeLogEntry('Tracking Zero Readings', RAMP_DOWN)
