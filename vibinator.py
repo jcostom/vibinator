@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import os
-import time
+import logging
+from time import sleep, strftime
 import telegram
 import RPi.GPIO
 
@@ -12,30 +13,41 @@ TZ = os.getenv('TZ', 'America/New_York')
 INTERVAL = int(os.getenv('INTERVAL', 120))
 SENSOR_PIN = int(os.getenv('SENSOR_PIN', 14))
 AVG_THRESHOLD = float(os.getenv('AVG_THRESHOLD', 0.2))
-LOGALL_ENV = os.getenv('LOGALL', False)
-if LOGALL_ENV == "False":
-    LOGALL = False
-else:
-    LOGALL = True
+DEBUG = int(os.getenv('DEBUG', 0))
 
 # Static
 READINGS = 1000000
 SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
-VER = "1.5.1"
-USER_AGENT = "vibinator.py/" + VER
+VER = "1.6"
+USER_AGENT = "/".join(['vibinator.py', VER])
+
+# Setup loggers
+inflogger = logging.getLogger()
+inflogger.setLevel(logging.INFO)
+infch = logging.StreamHandler()
+infch.setLevel(logging.INFO)
+
+deblogger = logging.getLogger()
+deblogger.setLevel(logging.DEBUG)
+debch = logging.StreamHandler()
+debch.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('[%(levelname)s] %(asctime)s %(message)s',
+                              datefmt='[%d %b %Y %H:%M:%S %Z]')
+
+infch.setFormatter(formatter)
+debch.setFormatter(formatter)
+
+inflogger.addHandler(infch)
+deblogger.addHandler(debch)
 
 
 def sendNotification(msg, chat_id, token):
     bot = telegram.Bot(token=token)
     bot.sendMessage(chat_id=chat_id, text=msg)
-    writeLogEntry("Telegram Group Message Sent", "")
-
-
-def writeLogEntry(message, status):
-    print(time.strftime("[%d %b %Y %H:%M:%S %Z]",
-          time.localtime()) + " {}: {}".format(message, status))
+    inflogger.info("Telegram Group Message Sent")
 
 
 def sensorInit(pin):
@@ -53,7 +65,7 @@ def takeReading(numReadings, pin):
 
 def main():
     sensorInit(SENSOR_PIN)
-    writeLogEntry('Initiated', USER_AGENT)
+    inflogger.info("Startup: {}".format(USER_AGENT))
     IS_RUNNING = 0
     RAMP_UP = 0
     RAMP_DOWN = 0
@@ -62,41 +74,41 @@ def main():
         sliceSum = 0
         for i in range(SLICES):
             result = takeReading(READINGS, SENSOR_PIN)
-            if (LOGALL):
-                writeLogEntry('Slice result was', result)
+            if (DEBUG):
+                deblogger.debug("Slice result was: {}".format(result))
             sliceSum += result
-            time.sleep(INTERVAL/SLICES)
+            sleep(INTERVAL/SLICES)
         sliceAvg = sliceSum / SLICES
-        if (LOGALL):
-            writeLogEntry('sliceAvg was', sliceAvg)
+        if (DEBUG):
+            deblogger.debug("sliceAvg was: {}".format(sliceAvg))
         if IS_RUNNING == 0:
             if sliceAvg >= AVG_THRESHOLD:
                 RAMP_UP += 1
                 if RAMP_UP > RAMP_UP_READINGS:
                     IS_RUNNING = 1
-                    writeLogEntry('Transition to running', sliceAvg)
+                    inflogger.info("Transition to running: {}".format(sliceAvg))  # noqa E501
                 else:
-                    writeLogEntry('Tracking Non-Zero Readings', RAMP_UP)
+                    inflogger.info("Tracking Non-Zero Readings: {}".format(RAMP_UP)) # noqa E501
             else:
                 RAMP_UP = 0
-                writeLogEntry('Remains stopped', sliceAvg)
+                inflogger.info("Remains stopped: {}".format(sliceAvg))
         else:
             if sliceAvg < AVG_THRESHOLD:
                 RAMP_DOWN += 1
                 if RAMP_DOWN > RAMP_DOWN_READINGS:
                     IS_RUNNING = 0
-                    writeLogEntry('Transition to stopped', '')
+                    inflogger.info("Transition to stopped")
                     notificationText = "".join(
                         ("Dryer finished on ",
-                         time.strftime("%B %d, %Y at %H:%M"),
+                         strftime("%B %d, %Y at %H:%M"),
                          ". Go switch out the laundry!")
                     )
                     sendNotification(notificationText, CHATID, MYTOKEN)
                 else:
-                    writeLogEntry('Tracking Zero Readings', RAMP_DOWN)
+                    inflogger.info("Tracking Zero Readings: {}".format(RAMP_DOWN)) # noqa E501
             else:
                 RAMP_DOWN = 0
-                writeLogEntry('Remains running', sliceAvg)
+                inflogger.info("Remains running: {}".format(sliceAvg))
 
 
 if __name__ == "__main__":
