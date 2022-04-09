@@ -23,31 +23,26 @@ RAMP_DOWN_READINGS = 4
 VER = "1.6"
 USER_AGENT = "/".join(['vibinator.py', VER])
 
-# Setup loggers
-inflogger = logging.getLogger()
-inflogger.setLevel(logging.INFO)
-infch = logging.StreamHandler()
-infch.setLevel(logging.INFO)
-
-deblogger = logging.getLogger()
-deblogger.setLevel(logging.DEBUG)
-debch = logging.StreamHandler()
-debch.setLevel(logging.DEBUG)
+# Setup logger
+logger = logging.getLogger()
+ch = logging.StreamHandler()
+if DEBUG:
+    logger.setLevel(logging.DEBUG)
+    ch.setLevel(logging.DEBUG)
+else:
+    logger.setLevel(logging.INFO)
+    ch.setLevel(logging.INFO)
 
 formatter = logging.Formatter('[%(levelname)s] %(asctime)s %(message)s',
                               datefmt='[%d %b %Y %H:%M:%S %Z]')
-
-infch.setFormatter(formatter)
-debch.setFormatter(formatter)
-
-inflogger.addHandler(infch)
-deblogger.addHandler(debch)
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 
 def sendNotification(msg, chat_id, token):
     bot = telegram.Bot(token=token)
     bot.sendMessage(chat_id=chat_id, text=msg)
-    inflogger.info("Telegram Group Message Sent")
+    logger.info("Telegram Group Message Sent")
 
 
 def sensorInit(pin):
@@ -65,7 +60,7 @@ def takeReading(numReadings, pin):
 
 def main():
     sensorInit(SENSOR_PIN)
-    inflogger.info("Startup: {}".format(USER_AGENT))
+    logger.info("Startup: {}".format(USER_AGENT))
     IS_RUNNING = 0
     RAMP_UP = 0
     RAMP_DOWN = 0
@@ -75,29 +70,29 @@ def main():
         for i in range(SLICES):
             result = takeReading(READINGS, SENSOR_PIN)
             if (DEBUG):
-                deblogger.debug("Slice result was: {}".format(result))
+                logger.debug("Slice result was: {}".format(result))
             sliceSum += result
             sleep(INTERVAL/SLICES)
         sliceAvg = sliceSum / SLICES
         if (DEBUG):
-            deblogger.debug("sliceAvg was: {}".format(sliceAvg))
+            logger.debug("sliceAvg was: {}".format(sliceAvg))
         if IS_RUNNING == 0:
             if sliceAvg >= AVG_THRESHOLD:
                 RAMP_UP += 1
                 if RAMP_UP > RAMP_UP_READINGS:
                     IS_RUNNING = 1
-                    inflogger.info("Transition to running: {}".format(sliceAvg))  # noqa E501
+                    logger.info("Transition to running: {}".format(sliceAvg))  # noqa E501
                 else:
-                    inflogger.info("Tracking Non-Zero Readings: {}".format(RAMP_UP)) # noqa E501
+                    logger.info("Tracking Non-Zero Readings: {}".format(RAMP_UP)) # noqa E501
             else:
                 RAMP_UP = 0
-                inflogger.info("Remains stopped: {}".format(sliceAvg))
+                logger.info("Remains stopped: {}".format(sliceAvg))
         else:
             if sliceAvg < AVG_THRESHOLD:
                 RAMP_DOWN += 1
                 if RAMP_DOWN > RAMP_DOWN_READINGS:
                     IS_RUNNING = 0
-                    inflogger.info("Transition to stopped")
+                    logger.info("Transition to stopped")
                     notificationText = "".join(
                         ("Dryer finished on ",
                          strftime("%B %d, %Y at %H:%M"),
@@ -105,10 +100,10 @@ def main():
                     )
                     sendNotification(notificationText, CHATID, MYTOKEN)
                 else:
-                    inflogger.info("Tracking Zero Readings: {}".format(RAMP_DOWN)) # noqa E501
+                    logger.info("Tracking Zero Readings: {}".format(RAMP_DOWN)) # noqa E501
             else:
                 RAMP_DOWN = 0
-                inflogger.info("Remains running: {}".format(sliceAvg))
+                logger.info("Remains running: {}".format(sliceAvg))
 
 
 if __name__ == "__main__":
