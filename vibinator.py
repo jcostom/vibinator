@@ -20,7 +20,7 @@ READINGS = 1000000
 SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
-VER = "1.6"
+VER = "1.7"
 USER_AGENT = "/".join(['vibinator.py', VER])
 
 # Setup logger
@@ -60,7 +60,7 @@ def takeReading(numReadings, pin):
 
 def main():
     sensorInit(SENSOR_PIN)
-    logger.info("Startup: {}".format(USER_AGENT))
+    logger.info(f"Startup: {USER_AGENT}")
     IS_RUNNING = 0
     RAMP_UP = 0
     RAMP_DOWN = 0
@@ -70,23 +70,23 @@ def main():
         for i in range(SLICES):
             result = takeReading(READINGS, SENSOR_PIN)
             if (DEBUG):
-                logger.debug("Slice result was: {}".format(result))
+                logger.debug(f"Slice result was: {result}")
             sliceSum += result
             sleep(INTERVAL/SLICES)
         sliceAvg = sliceSum / SLICES
         if (DEBUG):
-            logger.debug("sliceAvg was: {}".format(sliceAvg))
+            logger.debug(f"sliceAvg was: {sliceAvg}")
         if IS_RUNNING == 0:
             if sliceAvg >= AVG_THRESHOLD:
                 RAMP_UP += 1
                 if RAMP_UP > RAMP_UP_READINGS:
                     IS_RUNNING = 1
-                    logger.info("Transition to running: {}".format(sliceAvg))  # noqa E501
+                    logger.info(f"Transition to running: {sliceAvg}")
                 else:
-                    logger.info("Tracking Non-Zero Readings: {}".format(RAMP_UP)) # noqa E501
+                    logger.info(f"Tracking Non-Zero Readings: {RAMP_UP}")
             else:
                 RAMP_UP = 0
-                logger.info("Remains stopped: {}".format(sliceAvg))
+                logger.info(f"Remains stopped: {sliceAvg}")
         else:
             if sliceAvg < AVG_THRESHOLD:
                 RAMP_DOWN += 1
@@ -100,10 +100,10 @@ def main():
                     )
                     sendNotification(notificationText, CHATID, MYTOKEN)
                 else:
-                    logger.info("Tracking Zero Readings: {}".format(RAMP_DOWN)) # noqa E501
+                    logger.info(f"Tracking Zero Readings: {RAMP_DOWN}")
             else:
                 RAMP_DOWN = 0
-                logger.info("Remains running: {}".format(sliceAvg))
+                logger.info(f"Remains running: {sliceAvg}")
 
 
 if __name__ == "__main__":
