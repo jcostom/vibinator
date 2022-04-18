@@ -20,7 +20,8 @@ READINGS = 1000000
 SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
-VER = "1.7"
+
+VER = "1.7.1"
 USER_AGENT = "/".join(['vibinator.py', VER])
 
 # Setup logger
