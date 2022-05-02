@@ -6,23 +6,26 @@ from time import sleep, strftime
 import telegram
 import RPi.GPIO
 
-# Configurable
+# --- To be passed in to container ---
+# Mandatory Vars
 CHATID = int(os.getenv('CHATID'))
 MYTOKEN = os.getenv('MYTOKEN')
 TZ = os.getenv('TZ', 'America/New_York')
 INTERVAL = int(os.getenv('INTERVAL', 120))
 SENSOR_PIN = int(os.getenv('SENSOR_PIN', 14))
 AVG_THRESHOLD = float(os.getenv('AVG_THRESHOLD', 0.2))
+
+# Optional
 DEBUG = int(os.getenv('DEBUG', 0))
 
-# Static
+# --- Other Globals ---
 READINGS = 1000000
 SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
 
-VER = "1.7.1"
-USER_AGENT = "/".join(['vibinator.py', VER])
+VER = "1.8"
+USER_AGENT = f"vibinator.py/{VER}"
 
 # Setup logger
 logger = logging.getLogger()
@@ -40,71 +43,67 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-def sendNotification(msg, chat_id, token):
+def send_notification(msg: str, chat_id: int, token: str) -> None:
     bot = telegram.Bot(token=token)
     bot.sendMessage(chat_id=chat_id, text=msg)
     logger.info("Telegram Group Message Sent")
 
 
-def sensorInit(pin):
+def sensor_init(pin: int) -> None:
     RPi.GPIO.setwarnings(False)
     RPi.GPIO.setmode(RPi.GPIO.BCM)
     RPi.GPIO.setup(pin, RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_DOWN)
 
 
-def takeReading(numReadings, pin):
-    totalReadings = 0
-    for i in range(numReadings):
-        totalReadings += RPi.GPIO.input(pin)
-    return(totalReadings / numReadings)
+def take_reading(num_readings: int, pin: int) -> float:
+    total_readings = 0
+    for _ in range(num_readings):
+        total_readings += RPi.GPIO.input(pin)
+    return(total_readings / num_readings)
 
 
-def main():
-    sensorInit(SENSOR_PIN)
+def main() -> None:
+    sensor_init(SENSOR_PIN)
     logger.info(f"Startup: {USER_AGENT}")
     IS_RUNNING = 0
     RAMP_UP = 0
     RAMP_DOWN = 0
     while True:
-        # intervals are 120s, do 4 slices
-        sliceSum = 0
+        slice_sum = 0
         for i in range(SLICES):
-            result = takeReading(READINGS, SENSOR_PIN)
+            result = take_reading(READINGS, SENSOR_PIN)
             if (DEBUG):
                 logger.debug(f"Slice result was: {result}")
-            sliceSum += result
+            slice_sum += result
             sleep(INTERVAL/SLICES)
-        sliceAvg = sliceSum / SLICES
+        slice_avg = slice_sum / SLICES
         if (DEBUG):
-            logger.debug(f"sliceAvg was: {sliceAvg}")
+            logger.debug(f"slice_avg was: {slice_avg}")
         if IS_RUNNING == 0:
-            if sliceAvg >= AVG_THRESHOLD:
+            if slice_avg >= AVG_THRESHOLD:
                 RAMP_UP += 1
                 if RAMP_UP > RAMP_UP_READINGS:
                     IS_RUNNING = 1
-                    logger.info(f"Transition to running: {sliceAvg}")
+                    logger.info(f"Transition to running: {slice_avg}")
                 else:
                     logger.info(f"Tracking Non-Zero Readings: {RAMP_UP}")
             else:
                 RAMP_UP = 0
-                logger.info(f"Remains stopped: {sliceAvg}")
+                logger.info(f"Remains stopped: {slice_avg}")
         else:
-            if sliceAvg < AVG_THRESHOLD:
+            if slice_avg < AVG_THRESHOLD:
                 RAMP_DOWN += 1
                 if RAMP_DOWN > RAMP_DOWN_READINGS:
                     IS_RUNNING = 0
                     logger.info("Transition to stopped")
-                    notificationText = "".join(
-                        ("Dryer finished on ",
-                         strftime("%B %d, %Y at %H:%M"),
-                         ". Go switch out the laundry!")
-                    )
-                    sendNotification(notificationText, CHATID, MYTOKEN)
+                    now = strftime("%B %d, %Y at %H:%M")
+                    notification_text = f"Dryer finished on {now}. Go switch out the laundry!"  # noqa: E501
+                    send_notification(notification_text, CHATID, MYTOKEN)
                 else:
                     logger.info(f"Tracking Zero Readings: {RAMP_DOWN}")
             else:
                 RAMP_DOWN = 0
-                logger.info(f"Remains running: {sliceAvg}")
+                logger.info(f"Remains running: {slice_avg}")
 
 
 if __name__ == "__main__":
