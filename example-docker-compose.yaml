@@ -3,13 +3,14 @@ version: '3'
 
 services:
   vibinator:
-    image: jcostom/vibinator:1.5
+    image: jcostom/vibinator:latest
     container_name: vibinator
     devices:
       - /dev/gpiomem:/dev/gpiomem
     environment:
       - CHATID=your-chatid-value
       - MYTOKEN=your-token-name
+      - TZ=America/New_York
     restart: unless-stopped
     networks:
       - containers

@@ -1,12 +1,12 @@
 FROM python:slim as builder
 
-ENV TZ=America/New_York
+ARG TZ=America/New_York
 RUN apt update && apt -yq install gcc make
 RUN pip install python-telegram-bot && pip install RPi.GPIO
 
 FROM python:slim
 
-ENV TZ=America/New_York
+ARG TZ=America/New_York
 
 COPY --from=builder /usr/local/lib/python3.10/site-packages/ /usr/local/lib/python3.10/site-packages/
 
