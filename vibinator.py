@@ -65,9 +65,9 @@ def take_reading(num_readings: int, pin: int) -> float:
 def main() -> None:
     sensor_init(SENSOR_PIN)
     logger.info(f"Startup: {USER_AGENT}")
-    IS_RUNNING = 0
-    RAMP_UP = 0
-    RAMP_DOWN = 0
+    is_running = 0
+    ramp_up = 0
+    ramp_down = 0
     while True:
         slice_sum = 0
         for i in range(SLICES):
@@ -79,30 +79,30 @@ def main() -> None:
         slice_avg = slice_sum / SLICES
         if (DEBUG):
             logger.debug(f"slice_avg was: {slice_avg}")
-        if IS_RUNNING == 0:
+        if is_running == 0:
             if slice_avg >= AVG_THRESHOLD:
-                RAMP_UP += 1
-                if RAMP_UP > RAMP_UP_READINGS:
-                    IS_RUNNING = 1
+                ramp_up += 1
+                if ramp_up > RAMP_UP_READINGS:
+                    is_running = 1
                     logger.info(f"Transition to running: {slice_avg}")
                 else:
-                    logger.info(f"Tracking Non-Zero Readings: {RAMP_UP}")
+                    logger.info(f"Tracking Non-Zero Readings: {ramp_up}")
             else:
-                RAMP_UP = 0
+                ramp_up = 0
                 logger.info(f"Remains stopped: {slice_avg}")
         else:
             if slice_avg < AVG_THRESHOLD:
-                RAMP_DOWN += 1
-                if RAMP_DOWN > RAMP_DOWN_READINGS:
-                    IS_RUNNING = 0
+                ramp_down += 1
+                if ramp_down > RAMP_DOWN_READINGS:
+                    is_running = 0
                     logger.info("Transition to stopped")
                     now = strftime("%B %d, %Y at %H:%M")
                     notification_text = f"Dryer finished on {now}. Go switch out the laundry!"  # noqa: E501
                     send_notification(notification_text, CHATID, MYTOKEN)
                 else:
-                    logger.info(f"Tracking Zero Readings: {RAMP_DOWN}")
+                    logger.info(f"Tracking Zero Readings: {ramp_down}")
             else:
-                RAMP_DOWN = 0
+                ramp_down = 0
                 logger.info(f"Remains running: {slice_avg}")
 
 
