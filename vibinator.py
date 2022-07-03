@@ -24,7 +24,7 @@ SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
 
-VER = "1.8.1"
+VER = "1.9"
 USER_AGENT = f"vibinator.py/{VER}"
 
 # Setup logger
@@ -86,10 +86,12 @@ def main() -> None:
                     is_running = 1
                     logger.info(f"Transition to running: {slice_avg}")
                 else:
-                    logger.info(f"Tracking Non-Zero Readings: {ramp_up}")
+                    if (DEBUG):
+                        logger.debug(f"Tracking Non-Zero Readings: {ramp_up}")
             else:
                 ramp_up = 0
-                logger.info(f"Remains stopped: {slice_avg}")
+                if (DEBUG):
+                    logger.debug(f"Remains stopped: {slice_avg}")
         else:
             if slice_avg < AVG_THRESHOLD:
                 ramp_down += 1
@@ -100,10 +102,12 @@ def main() -> None:
                     notification_text = f"Dryer finished on {now}. Go switch out the laundry!"  # noqa: E501
                     send_notification(notification_text, CHATID, MYTOKEN)
                 else:
-                    logger.info(f"Tracking Zero Readings: {ramp_down}")
+                    if (DEBUG):
+                        logger.debug(f"Tracking Zero Readings: {ramp_down}")
             else:
                 ramp_down = 0
-                logger.info(f"Remains running: {slice_avg}")
+                if (DEBUG):
+                    logger.debug(f"Remains running: {slice_avg}")
 
 
 if __name__ == "__main__":
