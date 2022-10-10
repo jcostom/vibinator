@@ -24,7 +24,7 @@ SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
 
-VER = "1.11"
+VER = "1.12"
 USER_AGENT = f"vibinator.py/{VER}"
 
 # Setup logger
@@ -59,7 +59,7 @@ def take_reading(num_readings: int, pin: int) -> float:
     total_readings = 0
     for _ in range(num_readings):
         total_readings += RPi.GPIO.input(pin)
-    return(total_readings / num_readings)
+    return (total_readings / num_readings)
 
 
 def main() -> None:
