@@ -1,14 +1,14 @@
-FROM python:slim as builder
+FROM python:3.11-slim as builder
 
 ARG TZ=America/New_York
 RUN apt update && apt -yq install gcc make
 RUN pip install python-telegram-bot && pip install RPi.GPIO
 
-FROM python:slim
+FROM python:3.11-slim
 
 ARG TZ=America/New_York
 
-COPY --from=builder /usr/local/lib/python3.10/site-packages/ /usr/local/lib/python3.10/site-packages/
+COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
 
 RUN mkdir /app
 
