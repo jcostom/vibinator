@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import asyncio
 import os
 import logging
 from time import sleep, strftime
@@ -24,7 +25,7 @@ SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
 
-VER = "1.17"
+VER = "2.0"
 USER_AGENT = f"vibinator.py/{VER}"
 
 # Setup logger
@@ -43,9 +44,9 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-def send_notification(msg: str, chat_id: int, token: str) -> None:
+async def send_notification(msg: str, chat_id: int, token: str) -> None:
     bot = telegram.Bot(token=token)
-    bot.sendMessage(chat_id=chat_id, text=msg)
+    await bot.sendMessage(chat_id=chat_id, text=msg)
     logger.info("Telegram Group Message Sent")
 
 
@@ -99,7 +100,7 @@ def main() -> None:
                     logger.info("Transition to stopped")
                     now = strftime("%B %d, %Y at %H:%M")
                     notification_text = f"Dryer finished on {now}. Go switch out the laundry!"  # noqa: E501
-                    send_notification(notification_text, CHATID, MYTOKEN)
+                    asyncio.run(send_notification(notification_text, CHATID, MYTOKEN))
                 else:
                     logger.debug(f"Tracking Zero Readings: {ramp_down}")
             else:
