@@ -100,7 +100,7 @@ def main() -> None:
                     logger.info("Transition to stopped")
                     now = strftime("%B %d, %Y at %H:%M")
                     notification_text = f"Dryer finished on {now}. Go switch out the laundry!"  # noqa: E501
-                    asyncio.run(send_notification(notification_text, CHATID, MYTOKEN))
+                    asyncio.run(send_notification(notification_text, CHATID, MYTOKEN))  # noqa: E501
                 else:
                     logger.debug(f"Tracking Zero Readings: {ramp_down}")
             else:
