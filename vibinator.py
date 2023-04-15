@@ -25,7 +25,7 @@ SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
 
-VER = "2.0.2"
+VER = "2.0.4"
 USER_AGENT = f"vibinator.py/{VER}"
 
 # Setup logger
