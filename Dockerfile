@@ -1,10 +1,10 @@
-FROM python:3.11.4-slim-bullseye as builder
+FROM python:3.11.4-slim-bookworm as builder
 
 ARG TZ=America/New_York
 RUN apt update && apt -yq install gcc make
 RUN pip install python-telegram-bot && pip install RPi.GPIO
 
-FROM python:3.11.4-slim-bullseye
+FROM python:3.11.4-slim-bookworm
 
 ARG TZ=America/New_York
 
