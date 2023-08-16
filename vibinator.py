@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 import asyncio
-import os
 import logging
-from time import sleep, strftime
+import os
 import telegram
 import RPi.GPIO
+from time import sleep, strftime
 
 # --- To be passed in to container ---
 # Mandatory Vars
@@ -25,7 +25,7 @@ SLICES = 4
 RAMP_UP_READINGS = 4
 RAMP_DOWN_READINGS = 4
 
-VER = "2.1.1"
+VER = "2.2"
 USER_AGENT = f"vibinator.py/{VER}"
 
 # Setup logger
@@ -65,13 +65,11 @@ def main() -> None:
         slice_sum = 0
         for i in range(SLICES):
             result = take_reading(READINGS, SENSOR_PIN)
-            if (DEBUG):
-                logger.debug(f"Slice result was: {result}")
+            DEBUG and logger.debug(f"Slice result was: {result}")
             slice_sum += result
             sleep(INTERVAL/SLICES)
         slice_avg = slice_sum / SLICES
-        if (DEBUG):
-            logger.debug(f"slice_avg was: {slice_avg}")
+        DEBUG and logger.debug(f"slice_avg was: {slice_avg}")
         if is_running == 0:
             if slice_avg >= AVG_THRESHOLD:
                 ramp_up += 1
@@ -79,11 +77,10 @@ def main() -> None:
                     is_running = 1
                     logger.info(f"Transition to running: {slice_avg}")
                 else:
-                    logger.debug(f"Tracking Non-Zero Readings: {ramp_up}")
+                    DEBUG and logger.debug(f"Tracking Non-Zero Readings: {ramp_up}")  # noqa: E501
             else:
                 ramp_up = 0
-                if (DEBUG):
-                    logger.debug(f"Remains stopped: {slice_avg}")
+                DEBUG and logger.debug(f"Remains stopped: {slice_avg}")
         else:
             if slice_avg < AVG_THRESHOLD:
                 ramp_down += 1
@@ -94,11 +91,10 @@ def main() -> None:
                     notification_text = f"Dryer finished on {now}. Go switch out the laundry!"  # noqa: E501
                     asyncio.run(send_notification(notification_text, CHATID, MYTOKEN))  # noqa: E501
                 else:
-                    logger.debug(f"Tracking Zero Readings: {ramp_down}")
+                    DEBUG and logger.debug(f"Tracking Zero Readings: {ramp_down}")  # noqa: E501
             else:
                 ramp_down = 0
-                if (DEBUG):
-                    logger.debug(f"Remains running: {slice_avg}")
+                DEBUG and logger.debug(f"Remains running: {slice_avg}")
 
 
 if __name__ == "__main__":
