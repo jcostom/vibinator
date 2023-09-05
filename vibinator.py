@@ -8,24 +8,23 @@ import RPi.GPIO
 from time import sleep, strftime
 
 # --- To be passed in to container ---
-# Mandatory Vars
+# Globals
 CHATID = int(os.getenv('CHATID'))
 MYTOKEN = os.getenv('MYTOKEN')
 TZ = os.getenv('TZ', 'America/New_York')
-INTERVAL = int(os.getenv('INTERVAL', 120))
 SENSOR_PIN = int(os.getenv('SENSOR_PIN', 14))
+INTERVAL = int(os.getenv('INTERVAL', 120))
+READINGS = int(os.getenv('READINGS', 1000000))
 AVG_THRESHOLD = float(os.getenv('AVG_THRESHOLD', 0.2))
+SLICES = int(os.getenv('SLICES', 4))
+RAMP_UP_READINGS = int(os.getenv('RAMP_UP_READINGS', 4))
+RAMP_DOWN_READINGS = int(os.getenv('RAMP_DOWN_READINGS', 4))
+
 
 # Optional
 DEBUG = int(os.getenv('DEBUG', 0))
 
-# --- Other Globals ---
-READINGS = 1000000
-SLICES = 4
-RAMP_UP_READINGS = 4
-RAMP_DOWN_READINGS = 4
-
-VER = "2.2.2"
+VER = "2.3"
 USER_AGENT = f"vibinator.py/{VER}"
 
 # Setup logger
