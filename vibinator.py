@@ -24,7 +24,7 @@ RAMP_DOWN_READINGS = int(os.getenv('RAMP_DOWN_READINGS', 4))
 # Optional
 DEBUG = int(os.getenv('DEBUG', 0))
 
-VER = '2.3.4'
+VER = '2.3.5'
 USER_AGENT = f"vibinator.py/{VER}"
 
 # Setup logger
