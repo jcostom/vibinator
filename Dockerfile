@@ -8,7 +8,7 @@ FROM python:3.11.7-slim-bookworm
 
 ARG TZ=America/New_York
 
-COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/python3.12/site-packages/
+COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
 
 RUN mkdir /app
 
