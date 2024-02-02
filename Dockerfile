@@ -2,7 +2,7 @@ FROM python:3.12.1-slim-bookworm AS builder
 
 ARG TZ=America/New_York
 RUN apt update && apt -yq install gcc make
-RUN pip install python-telegram-bot && pip install RPi.GPIO
+RUN pip install python-telegram-bot requests && pip install RPi.GPIO
 
 FROM python:3.12.1-slim-bookworm
 
