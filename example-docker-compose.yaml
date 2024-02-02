@@ -8,8 +8,9 @@ services:
     devices:
       - /dev/gpiomem:/dev/gpiomem
     environment:
-      - CHATID=your-chatid-value
-      - MYTOKEN=your-token-name
+      - USE_TELEGRAM=1
+      - TELEGRAM_CHATID=your-chatid-value
+      - TELEGRAM_TOKEN=your-token-name
       - TZ=America/New_York
     restart: unless-stopped
     networks:
