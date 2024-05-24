@@ -6,7 +6,7 @@ import os
 import json
 import requests
 import telegram
-import RPi.GPIO
+from gpiozero import LineSensor
 from time import sleep, strftime
 
 # --- To be passed in to container ---
@@ -15,10 +15,10 @@ TZ = os.getenv('TZ', 'America/New_York')
 SENSOR_PIN = int(os.getenv('SENSOR_PIN', 14))
 INTERVAL = int(os.getenv('INTERVAL', 120))
 READINGS = int(os.getenv('READINGS', 1000000))
-AVG_THRESHOLD = float(os.getenv('AVG_THRESHOLD', 0.2))
+AVG_THRESHOLD = float(os.getenv('AVG_THRESHOLD', 0.8))
 SLICES = int(os.getenv('SLICES', 4))
-RAMP_UP_READINGS = int(os.getenv('RAMP_UP_READINGS', 4))
-RAMP_DOWN_READINGS = int(os.getenv('RAMP_DOWN_READINGS', 4))
+RAMP_UP_READINGS = int(os.getenv('RAMP_UP_READINGS', 3))
+RAMP_DOWN_READINGS = int(os.getenv('RAMP_DOWN_READINGS', 3))
 
 # Optional
 DEBUG = int(os.getenv('DEBUG', 0))
@@ -43,7 +43,7 @@ USE_ALEXA = int(os.getenv('USE_ALEXA', 0) or os.getenv('USEALEXA', 0))  # noqa E
 ALEXA_ACCESSCODE = os.getenv('ALEXA_ACCESSCODE')
 
 # Other Globals
-VER = '2.5.4'
+VER = '3.0'
 USER_AGENT = f"vibinator.py/{VER}"
 
 # Setup logger
@@ -96,36 +96,35 @@ def send_notifications(msg: str) -> None:
         send_alexa(msg, ALEXA_ACCESSCODE)
 
 
-def sensor_init(pin: int) -> None:
-    RPi.GPIO.setwarnings(False)
-    RPi.GPIO.setmode(RPi.GPIO.BCM)
-    RPi.GPIO.setup(pin, RPi.GPIO.IN, pull_up_down=RPi.GPIO.PUD_DOWN)
+def sensor_init(pin: int) -> LineSensor:
+    s = LineSensor(pin=pin, pull_up=True)
+    return s
 
 
-def take_reading(num_readings: int, pin: int) -> float:
+def take_reading(num_readings: int, s: LineSensor) -> float:
     total_readings = 0
     for _ in range(num_readings):
-        total_readings += RPi.GPIO.input(pin)
+        total_readings += s.value
     return (total_readings / num_readings)
 
 
 def main() -> None:
-    sensor_init(SENSOR_PIN)
     logger.info(f"Startup: {USER_AGENT}")
+    sensor = sensor_init(SENSOR_PIN)
     is_running = 0
     ramp_up = 0
     ramp_down = 0
     while True:
         slice_sum = 0
         for i in range(SLICES):
-            result = take_reading(READINGS, SENSOR_PIN)
+            result = take_reading(READINGS, sensor)
             DEBUG and logger.debug(f"Slice result was: {result}")
             slice_sum += result
-            sleep(INTERVAL/SLICES)
+            sleep(INTERVAL / SLICES)
         slice_avg = slice_sum / SLICES
         DEBUG and logger.debug(f"slice_avg was: {slice_avg}")
         if is_running == 0:
-            if slice_avg >= AVG_THRESHOLD:
+            if slice_avg <= AVG_THRESHOLD:
                 ramp_up += 1
                 if ramp_up > RAMP_UP_READINGS:
                     is_running = 1
@@ -136,7 +135,7 @@ def main() -> None:
                 ramp_up = 0
                 DEBUG and logger.debug(f"Remains stopped: {slice_avg}")
         else:
-            if slice_avg < AVG_THRESHOLD:
+            if slice_avg > AVG_THRESHOLD:
                 ramp_down += 1
                 if ramp_down > RAMP_DOWN_READINGS:
                     is_running = 0
