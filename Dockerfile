@@ -1,15 +1,7 @@
-FROM python:3.12.3-slim-bookworm AS builder
+FROM ubuntu:noble-20240429
 
 ARG TZ=America/New_York
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt -yq install gcc make
-RUN pip install python-telegram-bot requests RPi.GPIO
-
-FROM python:3.12.3-slim-bookworm
-
-ARG TZ=America/New_York
-ARG PYVER=3.12
-
-COPY --from=builder /usr/local/lib/python$PYVER/site-packages/ /usr/local/lib/python$PYVER/site-packages/
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt -yq install python3-gpiozero python3-requests python3-python-telegram-bot
 
 RUN mkdir /app
 

@@ -5,14 +5,16 @@ services:
   vibinator:
     image: jcostom/vibinator:latest
     container_name: vibinator
-    devices:
-      - /dev/gpiomem:/dev/gpiomem
     environment:
       - USE_TELEGRAM=1
       - TELEGRAM_CHATID=your-chatid-value
       - TELEGRAM_TOKEN=your-token-name
       - TZ=America/New_York
+      - DEBUG=0
+      - INTERVAL=60
+      - AVG_THRESHOLD=0.4
     restart: unless-stopped
+    privileged: true
     networks:
       - containers
 
