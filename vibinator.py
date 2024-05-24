@@ -15,10 +15,10 @@ TZ = os.getenv('TZ', 'America/New_York')
 SENSOR_PIN = int(os.getenv('SENSOR_PIN', 14))
 INTERVAL = int(os.getenv('INTERVAL', 120))
 READINGS = int(os.getenv('READINGS', 1000000))
-AVG_THRESHOLD = float(os.getenv('AVG_THRESHOLD', 0.4))
+AVG_THRESHOLD = float(os.getenv('AVG_THRESHOLD', 0.8))
 SLICES = int(os.getenv('SLICES', 4))
-RAMP_UP_READINGS = int(os.getenv('RAMP_UP_READINGS', 4))
-RAMP_DOWN_READINGS = int(os.getenv('RAMP_DOWN_READINGS', 4))
+RAMP_UP_READINGS = int(os.getenv('RAMP_UP_READINGS', 3))
+RAMP_DOWN_READINGS = int(os.getenv('RAMP_DOWN_READINGS', 3))
 
 # Optional
 DEBUG = int(os.getenv('DEBUG', 0))
@@ -124,7 +124,7 @@ def main() -> None:
         slice_avg = slice_sum / SLICES
         DEBUG and logger.debug(f"slice_avg was: {slice_avg}")
         if is_running == 0:
-            if slice_avg >= AVG_THRESHOLD:
+            if slice_avg <= AVG_THRESHOLD:
                 ramp_up += 1
                 if ramp_up > RAMP_UP_READINGS:
                     is_running = 1
@@ -135,7 +135,7 @@ def main() -> None:
                 ramp_up = 0
                 DEBUG and logger.debug(f"Remains stopped: {slice_avg}")
         else:
-            if slice_avg < AVG_THRESHOLD:
+            if slice_avg > AVG_THRESHOLD:
                 ramp_down += 1
                 if ramp_down > RAMP_DOWN_READINGS:
                     is_running = 0
