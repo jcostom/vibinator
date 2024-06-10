@@ -1,4 +1,4 @@
-FROM ubuntu:noble-20240429
+FROM ubuntu:noble-20240530
 
 ARG TZ=America/New_York
 RUN apt update && DEBIAN_FRONTEND=noninteractive apt -yq install python3-gpiozero python3-requests python3-python-telegram-bot
