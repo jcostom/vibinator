@@ -43,7 +43,7 @@ USE_ALEXA = int(os.getenv('USE_ALEXA', 0) or os.getenv('USEALEXA', 0))  # noqa E
 ALEXA_ACCESSCODE = os.getenv('ALEXA_ACCESSCODE')
 
 # Other Globals
-VER = '3.0'
+VER = '3.0.1'
 USER_AGENT = f"vibinator.py/{VER}"
 
 # Setup logger
